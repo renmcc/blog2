@@ -135,3 +135,5 @@ EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = 'xxxx'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+login_url='/account/login/'
