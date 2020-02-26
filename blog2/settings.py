@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog.apps.BlogConfig',
+    'account.apps.AccountConfig',
 ]
 
 MIDDLEWARE = [
@@ -122,3 +123,15 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/account/login/'
+
+EMAIL_HOST = 'xxxx'
+EMAIL_HOST_USER = 'xxx'
+EMAIL_HOST_PASSWORD = 'xxxxx'
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
+DEFAULT_FROM_EMAIL = 'xxxx'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
