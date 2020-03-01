@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'article.apps.ArticleConfig',
     'simpleui',
+    'article.templatetags',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +140,7 @@ DEFAULT_FROM_EMAIL = 'xxxx'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 login_url='/account/login/'
+
+REDIS_HOST = '192.168.10.10'
+REDIS_PORT = 6379
+REDIS_DB = 0

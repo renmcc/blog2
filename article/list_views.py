@@ -9,8 +9,10 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db.models import Count
 
-from .models import ArticlePost
+from .models import ArticlePost,Comment
+from .forms import CommentForm
 
 
 def article_titles(request, username=None):
@@ -43,9 +45,41 @@ def article_titles(request, username=None):
         return render(request, "article/list/author_articles.html", {"articles":articles,"page": current_page, "userinfo":userinfo,"user":user})
     return render(request, "article/list/article_titles.html", {"articles":articles,"page": current_page})
 
+
 def article_detail(request, id, slug):
+    '''
+    文章正文函数
+    :param request:
+    :param id:
+    :param slug:
+    :return:
+    '''
+    import redis
+    from django.conf import settings
+    r = redis.StrictRedis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB)
     article = get_object_or_404(ArticlePost, id=id, slug=slug)
-    return render(request, "article/list/article_content.html", {"article":article})
+    total_views = r.incr("article:{}:views".format(article.id))
+    r.zincrby("article_ranking", 1, article.id)
+    article_ranking = r.zrange("article_ranking", 0, -1, desc=True)[:10]
+    article_ranking_ids = [int(id) for id in article_ranking]
+    most_viewed = list(ArticlePost.objects.filter(id__in=article_ranking_ids))
+    most_viewed.sort(key=lambda x: article_ranking_ids.index(x.id))
+
+    #找出与当前文章相似的文章
+    article_tags_ids = article.article_tag.values_list("id", flat=True)
+    similar_articles = ArticlePost.objects.filter(article_tag__in=article_tags_ids).exclude(id=article.id)
+    similar_articles = similar_articles.annotate(same_tags=Count("article_tag")).order_by('-same_tags',"-created")[:4]
+
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            new_comment = comment_form.save(commit=False)
+            new_comment.article = article
+            new_comment.save()
+    else:
+        comment_form = CommentForm
+
+    return render(request, "article/list/article_content.html", {"article":article,"total_views":total_views,"most_viewed": most_viewed,'comment_form':comment_form,"similar_articles":similar_articles})
 
 @csrf_exempt
 @require_POST
@@ -70,3 +104,4 @@ def like_article(request):
         except Exception as e:
             print(e)
             return HttpResponse('no')
+
