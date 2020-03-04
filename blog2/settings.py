@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'article.apps.ArticleConfig',
     'simpleui',
     'article.templatetags',
+    'image.apps.ImageConfig',
+    'course.apps.CourseConfig',
 ]
 
 MIDDLEWARE = [
