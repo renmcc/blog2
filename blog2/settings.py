@@ -146,3 +146,7 @@ login_url='/account/login/'
 REDIS_HOST = '192.168.10.10'
 REDIS_PORT = 6379
 REDIS_DB = 0
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
+
